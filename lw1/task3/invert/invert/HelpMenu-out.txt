@@ -1,0 +1,4 @@
+Usage: invert.exe [filename]
+If [filename] is omitted, the program reads from stdin.
+Options:
+  -h  Show this help message.

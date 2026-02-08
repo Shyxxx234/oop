@@ -3,53 +3,55 @@
 #include <fstream>
 #include <Windows.h>
 
-using namespace std;
-
-int main(int argCount, char* argVect[])
+bool WriteFindTextInStream(std::istream& input, const std::string& searchText) 
 {
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-    
-    if (argCount != 3)
-    {
-        cerr << "Usage: findtext.exe <file name> <text to search>" << endl;
-        return 1;
-    }
-
-    string filename = argVect[1];
-    string searchText = argVect[2];
-
-    if (searchText.empty()) {
-        cerr << "Error: Search text cannot be empty" << endl;
-        return 1;
-    }
-    
-    ifstream fin;
-    fin.open(static_cast<string>(filename));
-    if (!fin.is_open())
-    {
-        cerr << "Can't open the file named " << filename << endl;
-        return 1;
-    }
-
-    string line;
+    std::string line;
     bool found = false;
     int lineNumber = 0;
 
-    while (getline(fin, line))
+    while (std::getline(input, line)) 
     {
         lineNumber++;
-        if (line.find(searchText) != string::npos)
+        if (line.find(searchText) != std::string::npos) 
         {
-            cout << lineNumber << endl;
+            std::cout << lineNumber << std::endl;
             found = true;
         }
     }
-
-    if (!found)
-    {
-        cout << "Text not found" << endl;
-    }
-    return 0;
+    return found;
 }
 
+int main(int argCount, char* argVect[]) 
+{
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    if (argCount != 3) 
+    {
+        std::cerr << "Usage: findtext.exe <file name> <text to search>" << std::endl;
+        return 1;
+    }
+
+    std::string filename = argVect[1];
+    std::string searchText = argVect[2];
+
+    if (searchText.empty()) 
+    {
+        std::cerr << "Error: Search text cannot be empty" << std::endl;
+        return 1;
+    }
+
+    std::ifstream fin(filename);
+    if (!fin.is_open()) 
+    {
+        std::cerr << "Error: Can't open the file named " << filename << std::endl;
+        return 1;
+    }
+
+    if (!WriteFindTextInStream(fin, searchText))
+    {
+        std::cout << "Text not found" << std::endl;
+    }
+
+    return 0;
+}
