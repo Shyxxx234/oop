@@ -30,8 +30,8 @@ fc %OUT% 16To10For1F-out.txt || goto err
 %PROGRAM% 10 2 "2147483647" > %OUT% || goto err
 fc %OUT% 10To2ForMaxInt-out.txt || goto err
 
-::Convert  -2 147 483 647 from 10-notation to 2-notation
-%PROGRAM% 10 2 "-2147483647" > %OUT% || goto err
+::Convert  -2 147 483 648 from 10-notation to 2-notation
+%PROGRAM% 10 2 "-2147483648" > %OUT% || goto err
 fc %OUT% 10To2ForMinInt-out.txt || goto err
 
 ::Convert Z from 36-notation to 2-notation
@@ -54,7 +54,7 @@ fc %OUT% 2To36For100011-out.txt || goto err
 %PROGRAM% 2 "100011" 2 4 2 > %OUT% || echo Test passed 2
 
 ::Radix overflow
-%PROGRAM% 2 40 "100011" > %OUT% || echo Test passed 3
+%PROGRAM% 2 37 "100011" > %OUT% || echo Test passed 3
 
 ::Radix underflow
 %PROGRAM% 1 35 "100011" > %OUT% || echo Test passed 4
@@ -66,7 +66,10 @@ fc %OUT% 2To36For100011-out.txt || goto err
 %PROGRAM% 2 10 "10?" > %OUT% || echo Test passed 6
 
 ::Value overflow
-%PROGRAM% 10 2 "12345678910111213" > %OUT% || echo Test passed 7
+%PROGRAM% 10 2 "2147483648" > %OUT% || echo Test passed 7
+
+::Value underflow
+%PROGRAM% 10 2 "-2147483649" > %OUT% || echo Test passed 7
 
 ::Value doesn't match with source radix
 %PROGRAM% 2 10 "123" > %OUT% || echo Test passed 8

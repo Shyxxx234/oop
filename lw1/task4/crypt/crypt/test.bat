@@ -12,7 +12,7 @@ fc invert.exe invert_decrypted.exe || goto err
 ::Crypt and decrypt the same file GTA5Enhanced
 %PROGRAM% crypt "GTA5_Enhanced.exe" "GTA5_Enhanced_crypted.exe" 236> %OUT% || goto err
 %PROGRAM% decrypt "GTA5_Enhanced_crypted.exe" "GTA5_Enhanced_decrypted.exe" 236> %OUT% || goto err
-fc invert.exe invert_decrypted.exe || goto err
+fc GTA5_Enhanced.exe GTA5_Enhanced_decrypted.exe || goto err
 
 ::Key overflow
 %PROGRAM% crypt "invert.exe" "invert_crypted.exe" 256> %OUT% || echo Test 1 passed

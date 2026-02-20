@@ -10,11 +10,11 @@ int CharToDigit(char c)
     {
         return c - '0';
     }
-    else if (c >= 'A' && c <= 'Z') 
+    if (c >= 'A' && c <= 'Z') 
     {
         return c - 'A' + 10;
     }
-    else if (c >= 'a' && c <= 'z') 
+    if (c >= 'a' && c <= 'z') 
     {
         return c - 'a' + 10;
     }
@@ -27,18 +27,44 @@ char DigitToChar(int digit)
     {
         return '0' + digit;
     }
-    else if (digit >= 10 && digit <= 35) 
+    if (digit >= 10 && digit <= 35) 
     {
         return 'A' + (digit - 10);
     }
     return '?'; 
 }
 
+bool ValidateRadix(int radix) //
+{
+    return radix >= 2 && radix <= 36;
+}
+
+bool AddCharToIntWithLimitations(bool isNegative, int& result, char digit, int radix)
+{
+    if (isNegative) //
+    {
+        if (result < (INT_MIN + digit) / radix)
+        {
+            return false;
+        }
+        result = result * radix - digit;
+    }
+    else
+    {
+        if (result > (INT_MAX - digit) / radix)
+        {
+            return false;
+        }
+        result = result * radix + digit;
+    }
+    return true;
+}
+
 int StringToInt(const std::string& str, int radix, bool& wasError)
 {
     wasError = false;
 
-    if (radix < 2 || radix > 36 || str.empty())
+    if (!ValidateRadix(radix))
     {
         wasError = true;
         return 0;
@@ -50,7 +76,6 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
     if (numberStr[0] == '-')
     {
         isNegative = true;
-
         if (numberStr.length() == 1)
         {
             wasError = true;
@@ -58,36 +83,34 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
         }
     }
 
+    size_t startIndex = 0;
+
     if (numberStr[0] == '-' || numberStr[0] == '+')
     {
-        numberStr.erase(0, 1);
+        startIndex = 1;
     }
 
-    long long result = 0;
-    long long maxBeforeMultiply = (static_cast<long long>(INT_MAX) / radix);
+    int result = 0; //
 
-    for (size_t i = 0; i < numberStr.length(); i++)
+    for (size_t i = startIndex; i < numberStr.length(); i++)
     {
         int digit = CharToDigit(numberStr[i]);
-        if (result > maxBeforeMultiply || digit == -1 || digit >= radix)
+
+        if (digit == -1 || digit >= radix || !AddCharToIntWithLimitations(isNegative, result, digit, radix))
         {
             wasError = true;
             return 0;
         }
-        result = result * radix + digit;
     }
-    if (isNegative)
-    {
-        result *= -1;
-    }
-    return static_cast<int>(result);
+
+    return result;
 }
 
 std::string IntToString(int n, int radix, bool& wasError)
 {
     wasError = false;
 
-    if (radix < 2 || radix > 36)
+    if (!ValidateRadix(radix))
     {
         wasError = true;
         return "";
@@ -130,12 +153,10 @@ int main(int argCount, char* argVect[])
         return 1;
     }
 
-    int sourceRadix = std::stoi(argVect[1]);
-    int destinationRadix = std::stoi(argVect[2]);
     bool wasError = false;
-    std::string value = argVect[3];
-
-    int number = StringToInt(value, sourceRadix, wasError);
+    int sourceRadix = StringToInt(argVect[1], 10, wasError); //use myself func
+    int destinationRadix = StringToInt(argVect[2], 10, wasError);
+    int number = StringToInt(argVect[3], sourceRadix, wasError);
 
     if (wasError)
     {

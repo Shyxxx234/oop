@@ -8,6 +8,10 @@ set OUT="%TEMP%\out.txt"
 %PROGRAM% "Matrix1.txt" > %OUT% || goto err
 fc %OUT% Matrix1-out.txt || goto err
 
+::Invert matrix 3x3 with determinant != 0
+%PROGRAM% "MatrixPrecision.txt" > %OUT% || goto err
+fc %OUT% MatrixPrecision-out.txt || goto err
+
 ::Help menu
 %PROGRAM% "-h" > %OUT% || goto err
 fc %OUT% HelpMenu-out.txt || goto err
@@ -28,6 +32,10 @@ fc %OUT% MatrixWithoutArguments-out.txt || goto err
 %PROGRAM% "MatrixNan.txt" > %OUT% || goto err
 fc %OUT% MatrixNan-out.txt || goto err
 
+::Zero matrix
+%PROGRAM% "ZeroMatrix.txt" > %OUT% || goto err
+fc %OUT% MatrixWithZeroDeterminant-out.txt || goto err
+
 ::Empty file
 %PROGRAM% "Empty.txt" > %OUT% || goto err
 fc %OUT% Empty-out.txt || goto err
@@ -38,6 +46,11 @@ fc %OUT% MatrixWithZeroDeterminant-out.txt || goto err
 
 ::Doesn't existing file
 %PROGRAM% "Empt.txt" > %OUT% || echo Test passed 0
+
+::Doesnt have a permission
+%PROGRAM% "DoesntHaveAPermission.txt" > %OUT% || echo Test passed 1
+
+
 
 echo All tests passed
 exit /B 0

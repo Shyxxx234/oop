@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <Windows.h>
-#include <vector>
+#include <array>
 #include <iomanip>
 #include <cmath>
 #include <string>
+
+using Matrix = std::array<std::array<double, 3>, 3>;
 
 void PrintHelpMessage()
 {
@@ -13,7 +15,7 @@ void PrintHelpMessage()
 	std::cout << "Options:\n  -h  Show this help message." << std::endl;
 }
 
-bool ReadMatrix(std::istream& input, std::vector<std::vector<double>>& matrix)
+bool ReadMatrix(std::istream& input, Matrix& matrix)
 {
 	for (size_t row = 0; row < 3; row++)
 	{
@@ -29,7 +31,7 @@ bool ReadMatrix(std::istream& input, std::vector<std::vector<double>>& matrix)
 	return true;
 }
 
-double GetDeterminant(std::vector<std::vector<double>>& matrix)
+double GetDeterminant(Matrix& matrix)
 {
 	double positive = matrix[0][0] * matrix[1][1] * matrix[2][2] + matrix[0][1] * matrix[1][2] * matrix[2][0]
 		+ matrix[0][2] * matrix[1][0] * matrix[2][1];
@@ -40,18 +42,11 @@ double GetDeterminant(std::vector<std::vector<double>>& matrix)
 	return positive - negative;
 }
 
-bool InvertMatrix(std::vector<std::vector<double>>& matrix) {
-	double det = GetDeterminant(matrix);
-	if (abs(det) < 1e-9) {
-		std::cout << "Non-invertible" << std::endl;
-		return false;
-	}
+Matrix InvertMatrixByMinors(Matrix& matrix, double invDet)
+{
+	Matrix res;
 
-	std::vector<std::vector<double>> res(3, std::vector<double>(3));
-
-	double invDet = 1.0 / det;
-
-	res[0][0] = (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) * invDet;
+	res[0][0] = (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) * invDet; 
 	res[0][1] = (matrix[0][2] * matrix[2][1] - matrix[0][1] * matrix[2][2]) * invDet;
 	res[0][2] = (matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1]) * invDet;
 
@@ -63,8 +58,36 @@ bool InvertMatrix(std::vector<std::vector<double>>& matrix) {
 	res[2][1] = (matrix[2][0] * matrix[0][1] - matrix[0][0] * matrix[2][1]) * invDet;
 	res[2][2] = (matrix[0][0] * matrix[1][1] - matrix[1][0] * matrix[0][1]) * invDet;
 
-	matrix = res;
+	return res;
+}
+
+bool InvertMatrix(Matrix& matrix) 
+{
+	double det = GetDeterminant(matrix);
+	if (det == 0) 
+	{
+		return false;
+	}
+
+	Matrix res;
+
+	double invDet = 1.0 / det;
+
+	matrix = InvertMatrixByMinors(matrix, invDet);
 	return true;
+}
+
+void PrintMatrix(std::ostream& out, Matrix& matrix)
+{
+	std::cout << std::fixed << std::setprecision(3);
+	for (int row = 0; row < 3; row++)
+	{
+		for (int col = 0; col < 3; col++)
+		{
+			out << matrix[row][col] << (col == 2 ? "" : "\t");
+		}
+		out << std::endl;
+	}
 }
 
 int main(int argCount, char* argVect[])
@@ -73,7 +96,7 @@ int main(int argCount, char* argVect[])
 	SetConsoleOutputCP(CP_UTF8);
 
 	bool success = false;
-	std::vector<std::vector<double>> matrix(3, std::vector<double>(3));
+	Matrix matrix;
 
 	if (argCount > 1)
 	{
@@ -101,17 +124,13 @@ int main(int argCount, char* argVect[])
 	{
 		if (InvertMatrix(matrix))
 		{
-			std::cout << std::fixed << std::setprecision(3);
-			for (int row = 0; row < 3; row++) 
-			{
-				for (int col = 0; col < 3; col++) 
-				{
-					std::cout << (matrix[row][col] == 0.0 ? 0.0 : matrix[row][col]) << (col == 2 ? "" : "\t");
-				}
-				std::cout << std::endl;
-			}
+			PrintMatrix(std::cout, matrix);
+		}
+		else
+		{
+			std::cout << "Non-invertible" << std::endl;
 		}
 	}
+	
 	return 0;
 }
-
