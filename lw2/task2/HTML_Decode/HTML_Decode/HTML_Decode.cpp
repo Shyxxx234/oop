@@ -1,16 +1,37 @@
 #include <iostream>
 #include <vector>
-#include <string>
 #include <algorithm>
+#include "HTML_Decode.h"
+#include <Windows.h>
 
-char ParseCommand(const std::string& command)
+
+std::string ParseCommand(const std::string& command)
 {
-    if (command == "quot") return '"';
-    if (command == "apos") return '\'';
-    if (command == "lt") return '<';
-    if (command == "gt") return '>';
-    if (command == "amp") return '&';
-    return '?';
+    if (command == "&quot;") return "\"";
+    if (command == "&apos;") return "'";
+    if (command == "&lt;") return "<";
+    if (command == "&gt;") return ">";
+    if (command == "&amp;") return "&";
+    return command;
+}
+
+std::string ProcessCommand(size_t& i, const std::string& html)
+{
+    std::string processedHtml;
+    std::string command;
+
+    while (html[i] != ';' && i < html.size() && html[i] != ' ') 
+    {
+        command += html[i];
+        i++;
+    }
+    if (i < html.size())
+    {
+        command += html[i];
+    }
+    processedHtml += ParseCommand(command);
+
+    return processedHtml;
 }
 
 std::string HtmlDecode(const std::string& html)
@@ -20,15 +41,7 @@ std::string HtmlDecode(const std::string& html)
     {
         if (html[i] == '&')
         {
-            std::string command = "";
-            i++;
-
-            while (html[i] != ';')
-            {
-                command += html[i];
-                i++;
-            }
-            decodedHtml += ParseCommand(command);
+            decodedHtml += ProcessCommand(i, html);
         }
         else
         {
@@ -38,9 +51,3 @@ std::string HtmlDecode(const std::string& html)
     return decodedHtml;
 }
 
-int main()
-{
-    std::string html;
-    getline(std::cin, html);
-    std::cout << HtmlDecode(html) << std::endl;
-}
